@@ -1,15 +1,11 @@
-# Render.com — backend only (TensorFlow needs RAM; use Starter plan or higher)
+# Render — use Docker (most reliable for TensorFlow)
 services:
   - type: web
     name: nrityaai-api
-    runtime: python
+    runtime: docker
+    dockerfilePath: ./Dockerfile
     plan: starter
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app:app --host 0.0.0.0 --port $PORT
     envVars:
-      - key: PYTHON_VERSION
-        value: "3.11.9"
       - key: ALLOWED_ORIGINS
         sync: false
-    # Required: TensorFlow has no wheels for Python 3.13 with TF 2.15
     healthCheckPath: /health
