@@ -178,6 +178,7 @@ npm run preview
 |---------|-----|
 | `Could not find a version that satisfies tensorflow` | Render is on **Python 3.14** by default. Use **Docker** deploy (`Dockerfile`) OR set **`PYTHON_VERSION`** = `3.11.9` (full version) + add `.python-version` file |
 | Deploy fails after `cpu_feature_guard` log line | That line is **INFO**, not an error. Push latest `app.py` (background model load). Set health check path to `/health` |
+| `Unrecognized keyword arguments: batch_shape, optional` | Model saved with **Keras 3** (TF 2.16+). Use `tensorflow==2.19.1` in `requirements.txt` + `PYTHON_VERSION=3.11.9` — not TF 2.15 |
 | Backend build fails / out of memory | Use Render **Starter** plan or Railway with 2 GB+ RAM |
 | `Model not found` | Ensure `model/emotion_mobilenetv2.h5` is in the repo or uploaded to the server |
 | CORS error in browser | Add frontend URL to `ALLOWED_ORIGINS` on Render |

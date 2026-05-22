@@ -1,6 +1,6 @@
-# Pin for Render/Linux — TensorFlow 2.15 needs Python 3.9–3.11
-tensorflow==2.15.1
-numpy>=1.24.0,<2.0.0
+# Match local training/save environment (tf 2.19 + Keras 3)
+tensorflow==2.19.1
+numpy>=1.26.0,<2.2.0
 fastapi>=0.115.0
 uvicorn[standard]>=0.32.0
 python-multipart>=0.0.9

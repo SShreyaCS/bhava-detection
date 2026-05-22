@@ -22,8 +22,8 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
-from tensorflow.keras.models import load_model as keras_load_model
+import keras
+from keras.applications.mobilenet_v2 import preprocess_input
 
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
@@ -76,7 +76,7 @@ def load_model() -> tf.keras.Model:
     if not MODEL_PATH.exists():
         raise FileNotFoundError(f"Model not found: {MODEL_PATH}")
 
-    model = keras_load_model(str(MODEL_PATH))
+    model = keras.models.load_model(str(MODEL_PATH), compile=False)
     class_names = load_class_names()
 
     if model.output_shape[-1] != len(class_names):
