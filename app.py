@@ -10,6 +10,7 @@ UI: http://127.0.0.1:5000/  ·  Docs: http://127.0.0.1:5000/docs
 """
 
 import os
+import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -50,6 +51,8 @@ EMOTION_TO_BHAVA = {
 model: tf.keras.Model | None = None
 class_names: list[str] = []
 face_cascade: cv2.CascadeClassifier | None = None
+_model_ready = threading.Event()
+_model_error: str | None = None
 
 
 def load_class_names() -> list[str]:
@@ -172,13 +175,37 @@ def predict_emotion_from_bytes(image_bytes: bytes) -> dict:
     return predict_emotion_from_bgr(image_bgr)
 
 
+def _load_model_background() -> None:
+    """Load TensorFlow model in a thread so Render health checks pass quickly."""
+    global face_cascade, _model_error
+    try:
+        print(f"Loading model from {MODEL_PATH}...")
+        load_model()
+        face_cascade = load_face_detector()
+        print("Model and face detector ready.")
+        _model_ready.set()
+    except Exception as exc:
+        _model_error = str(exc)
+        print(f"Model load failed: {exc}")
+        raise
+
+
+def _wait_for_model(timeout: float = 180.0) -> None:
+    if _model_ready.is_set():
+        return
+    if _model_error:
+        raise HTTPException(status_code=503, detail=f"Model failed to load: {_model_error}")
+    if not _model_ready.wait(timeout=timeout):
+        raise HTTPException(
+            status_code=503,
+            detail="Model is still loading. Wait 1–2 minutes and try again.",
+        )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global face_cascade
-    print(f"Loading model from {MODEL_PATH}...")
-    load_model()
-    face_cascade = load_face_detector()
-    print("Face detector loaded.")
+    thread = threading.Thread(target=_load_model_background, daemon=True)
+    thread.start()
     yield
 
 
@@ -250,11 +277,19 @@ def api_info():
 
 @app.get("/health")
 def health():
-    return {
-        "status": "ok",
-        "classes": class_names,
+    """Fast health check — returns 200 while model loads (for Render deploy)."""
+    ready = _model_ready.is_set()
+    payload = {
+        "status": "ok" if ready else "starting",
+        "model_loaded": ready,
         "bhava_mapping": EMOTION_TO_BHAVA,
     }
+    if ready:
+        payload["classes"] = class_names
+    if _model_error:
+        payload["status"] = "error"
+        payload["error"] = _model_error
+    return payload
 
 
 @app.post("/predict")
@@ -275,6 +310,8 @@ async def predict(
     """
     if not image.filename:
         raise HTTPException(status_code=400, detail="Empty filename.")
+
+    _wait_for_model()
 
     try:
         contents = await image.read()

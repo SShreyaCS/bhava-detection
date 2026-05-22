@@ -81,16 +81,30 @@ TensorFlow needs **at least ~1–2 GB RAM**. Free tiers often fail; use **Starte
    | **Start Command** | `uvicorn app:app --host 0.0.0.0 --port $PORT` |
    | **Plan** | Starter (or higher) |
 
-4. **Environment variables** → Add:
+4. **Choose ONE of these runtimes:**
+
+   **Option A — Docker (recommended, fixes TensorFlow install):**
+   - **Runtime:** Docker
+   - **Dockerfile Path:** `./Dockerfile`
+   - **Build Command:** *(leave empty)*
+   - **Start Command:** *(leave empty — uses Dockerfile CMD)*
+
+   **Option B — Native Python:**
+   - **Runtime:** Python 3
+   - **Build Command:** `pip install --upgrade pip && pip install -r requirements.txt`
+   - **Start Command:** `uvicorn app:app --host 0.0.0.0 --port $PORT`
+   - **Environment:** `PYTHON_VERSION` = `3.11.9` *(must be full version, not 3.11)*
+   - Repo must include `.python-version` with `3.11.9`
+
+   > New Render services default to **Python 3.14**, which has **no TensorFlow**. That causes `from versions: none`.
+
+5. **Environment variables** → Add:
 
    | Key | Value (example) |
    |-----|------------------|
    | `ALLOWED_ORIGINS` | `https://your-app.vercel.app` *(add frontend URL after Step 3)* |
 
-   You can add multiple origins separated by commas (no spaces), e.g.  
-   `https://nrityaai.vercel.app,http://localhost:5173`
-
-5. Click **Create Web Service**.
+6. Click **Create Web Service**.
 6. Wait 5–15 minutes (first deploy installs TensorFlow and loads the model).
 7. Copy your backend URL, e.g. `https://nrityaai-api.onrender.com`.
 8. Test: open `https://nrityaai-api.onrender.com/health` — should show JSON with `"status":"ok"`.
@@ -162,7 +176,8 @@ npm run preview
 
 | Problem | Fix |
 |---------|-----|
-| `Could not find a version that satisfies tensorflow` | Set **`PYTHON_VERSION`** = `3.11.9` in Render Environment (not Python 3.13) |
+| `Could not find a version that satisfies tensorflow` | Render is on **Python 3.14** by default. Use **Docker** deploy (`Dockerfile`) OR set **`PYTHON_VERSION`** = `3.11.9` (full version) + add `.python-version` file |
+| Deploy fails after `cpu_feature_guard` log line | That line is **INFO**, not an error. Push latest `app.py` (background model load). Set health check path to `/health` |
 | Backend build fails / out of memory | Use Render **Starter** plan or Railway with 2 GB+ RAM |
 | `Model not found` | Ensure `model/emotion_mobilenetv2.h5` is in the repo or uploaded to the server |
 | CORS error in browser | Add frontend URL to `ALLOWED_ORIGINS` on Render |
