@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Emotion & Bhava Detection</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Emotion & Bhava Detection</h1>
+      <p class="subtitle">MobileNetV2 · Natyashastra mapping</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="upload">Upload Image</button>
+      <button class="tab" data-tab="live">Live Detection</button>
+    </div>
+
+    <!-- Upload panel -->
+    <section id="panel-upload" class="panel active">
+      <div class="card">
+        <label class="file-label" for="file-input">
+          <span>Choose an image</span>
+          <input type="file" id="file-input" accept="image/*" hidden />
+        </label>
+        <div class="preview-wrap hidden" id="upload-preview-wrap">
+          <img id="upload-preview" alt="Preview" />
+        </div>
+        <button class="btn primary" id="btn-analyze-upload" disabled>Analyze</button>
+      </div>
+    </section>
+
+    <!-- Live panel -->
+    <section id="panel-live" class="panel">
+      <div class="card">
+        <div class="camera-wrap">
+          <video id="camera-video" autoplay playsinline muted></video>
+          <canvas id="capture-canvas" hidden></canvas>
+          <p class="camera-hint" id="camera-hint">Click “Start Camera” to begin</p>
+        </div>
+        <div class="btn-row">
+          <button class="btn secondary" id="btn-start-camera">Start Camera</button>
+          <button class="btn primary" id="btn-capture" disabled>Capture & Analyze</button>
+          <button class="btn secondary" id="btn-stop-camera" disabled>Stop Camera</button>
+        </div>
+        <div class="preview-wrap hidden" id="capture-preview-wrap">
+          <img id="capture-preview" alt="Captured frame" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Results -->
+    <section class="results hidden" id="results">
+      <h2>Prediction</h2>
+      <div id="results-error" class="error-msg hidden"></div>
+      <div id="results-success" class="result-grid hidden">
+        <div class="result-item">
+          <span class="label">Emotion</span>
+          <span class="value" id="res-emotion">—</span>
+        </div>
+        <div class="result-item highlight">
+          <span class="label">Bhava</span>
+          <span class="value" id="res-bhava">—</span>
+        </div>
+        <div class="result-item">
+          <span class="label">Confidence</span>
+          <span class="value" id="res-confidence">—</span>
+        </div>
+      </div>
+      <div id="probabilities" class="prob-list hidden"></div>
+    </section>
+
+    <footer>
+      <a href="/docs" target="_blank">API docs</a>
+    </footer>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>
