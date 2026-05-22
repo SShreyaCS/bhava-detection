@@ -162,6 +162,7 @@ npm run preview
 
 | Problem | Fix |
 |---------|-----|
+| `Could not find a version that satisfies tensorflow` | Set **`PYTHON_VERSION`** = `3.11.9` in Render Environment (not Python 3.13) |
 | Backend build fails / out of memory | Use Render **Starter** plan or Railway with 2 GB+ RAM |
 | `Model not found` | Ensure `model/emotion_mobilenetv2.h5` is in the repo or uploaded to the server |
 | CORS error in browser | Add frontend URL to `ALLOWED_ORIGINS` on Render |

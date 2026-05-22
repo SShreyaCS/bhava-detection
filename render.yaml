@@ -11,4 +11,5 @@ services:
         value: "3.11.9"
       - key: ALLOWED_ORIGINS
         sync: false
+    # Required: TensorFlow has no wheels for Python 3.13 with TF 2.15
     healthCheckPath: /health
